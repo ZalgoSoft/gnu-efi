@@ -251,7 +251,7 @@ EFI_CFLAGS += -D__GNU_EFI_NO_GLIBC
 endif
 
 ifeq ($(ARCH),arm)
-EFI_CFLAGS += -marm
+EFI_CFLAGS += -marm  -fshort-wchar 
 endif
 
 ifneq (,$(filter $(ARCH),aarch64 arm loongarch64))
@@ -305,14 +305,17 @@ ifeq ($(IS_MINGW32),)
   EFI_LDFLAGS += --warn-common --no-undefined --fatal-warnings \
              --build-id=sha1
   ifeq ($(USING_APPLE),0)
-  EFI_LDFLAGS += -z norelro -z nocombreloc
+    EFI_LDFLAGS += -z nocombreloc
+    ifneq ($(ARCH),arm)
+      EFI_LDFLAGS += -z norelro 
+    endif
   endif
 else
   EFI_LDFLAGS += -Wl,--warn-common -Wl,--no-undefined -Wl,--fatal-warnings \
              -Wl,--build-id=sha1
 endif
 
-ifneq ($(ARCH),arm)
+ifneq ($(ARCH),notarm)
 export LIBGCC=$(shell $(CC) $(CFLAGS) $(ARCH3264) -print-libgcc-file-name)
 endif
 
